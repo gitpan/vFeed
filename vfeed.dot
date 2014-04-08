@@ -1,0 +1,218 @@
+CREATE TABLE nvd_db (
+cveid text primary key,
+date_published date,
+date_modified date,
+summary text,
+cvss_base text,
+cvss_impact text,
+cvss_exploit text,
+cvss_access_vector text,
+cvss_access_complexity text,
+cvss_authentication text,
+cvss_confidentiality_impact text,
+cvss_integrity_impact text,
+cvss_availability_impact text
+
+);
+CREATE TABLE cve_cwe (
+cweid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE cwe_db (
+cweid name,
+cwetitle name
+);
+CREATE TABLE cwe_category (
+categoryid name,
+categorytitle name,
+cweid  text not null references cwe_db (cweid)
+);
+CREATE TABLE cwe_capec (
+capecid name,
+cweid  text not null references cwe_db (cweid)
+);
+CREATE TABLE cve_cpe (
+cpeid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE cve_reference (
+refsource name,
+refname name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_aixapar (
+aixaparid name,
+cveid text not null references nvd_db (cveid) 
+);
+CREATE TABLE map_cve_redhat (
+redhatid name,
+redhatovalid name,
+redhatupdatedesc name,
+cveid text not null references nvd_db (cveid)
+);
+CREATE TABLE map_redhat_bugzilla (
+advisory_dateissue name,
+bugzillaid name,
+bugzillatitle name,
+redhatid text not null references map_cve_redhat (redhatid)
+);
+CREATE TABLE map_cve_suse (
+suseid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_debian (
+debianid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_mandriva (
+mandrivaid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_exploitdb (
+exploitdbid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_saint (
+saintexploitid name,
+saintexploittitle name,
+saintexploitlink name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_milw0rm (
+milw0rmid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_osvdb (
+osvdbid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_oval (
+ovalid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_nessus (
+nessus_script_id name,
+nessus_script_file name,
+nessus_script_name name,
+nessus_script_family name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_msf (
+msfid name,
+msf_script_file name,
+msf_script_name name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_openvas (
+openvas_script_id name,
+openvas_script_file name,
+openvas_script_name name,
+openvas_script_family name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_scip (
+scipid name,
+sciplink name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_iavm (
+iavmid name,
+disakey name,
+iavmtitle name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_cisco (
+ciscoid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_ubuntu (
+ubuntuid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_gentoo (
+gentooid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_fedora (
+fedoraid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_certvn (
+certvuid name,
+certvulink name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_ms (
+msid name,
+mstitle name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_mskb (
+mskbid name,
+mskbtitle name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_snort (
+snort_id name,
+snort_sig name,
+snort_classtype name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_suricata (
+suricata_id name,
+suricata_sig name,
+suricata_classtype name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_vmware (
+vmwareid name,
+cveid text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_bid (
+bidid name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE map_cve_hp (
+hpid name,
+hplink name,
+cveid  text not null references nvd_db (cveid)
+);
+CREATE TABLE stat_new_cve (
+new_cve_id name,
+new_cve_summary name
+);
+CREATE TABLE stat_vfeed_kpi (
+db_version name,
+total_cve name,
+total_cpe name,
+total_cwe name,
+total_capec name,
+total_bid name,
+total_osvdb name,
+total_certvu name,
+total_iavm name,
+total_scip name,
+total_aixapar name,
+total_suse name,
+total_ubuntu name,
+total_vmware name,
+total_cisco name,
+total_debian name,
+total_fedora name,
+total_gentoo name,
+total_hp name,
+total_mandriva name,
+total_ms name,
+total_mskb name,
+total_redhat name,
+total_redhat_bugzilla name,
+total_exploitdb name,
+total_msf name,
+total_milw0rm name,
+total_saint name,
+total_nessus name,
+total_openvas name,
+total_oval name,
+total_snort name,
+total_suricata name
+);
