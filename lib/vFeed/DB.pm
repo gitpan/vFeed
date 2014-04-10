@@ -1,5 +1,5 @@
 #
-# $Id: DB.pm 6 2014-04-08 12:31:37Z gomor $
+# $Id: DB.pm 12 2014-04-10 12:00:59Z gomor $
 #
 package vFeed::DB;
 use strict;
@@ -107,22 +107,22 @@ sub _prepare {
       latest_cve => qq{SELECT * FROM stat_new_cve},
 
       # Information
-      get_cve => qq{SELECT * FROM nvd_db WHERE cveid LIKE ?},
-      get_cpe => qq{SELECT * FROM cve_cpe WHERE cveid LIKE ?},
-      get_cwe => qq{SELECT * FROM cve_cwe WHERE cveid LIKE ?},
-      get_capec => qq{SELECT * FROM cwe_capec WHERE cweid LIKE ?},
-      get_category => qq{SELECT * FROM cwe_category WHERE cweid LIKE ?},
-      get_iavm => qq{SELECT * FROM map_cve_iavm WHERE cveid LIKE ?},
+      get_cve => qq{SELECT * FROM nvd_db WHERE cveid=?},
+      get_cpe => qq{SELECT * FROM cve_cpe WHERE cveid=?},
+      get_cwe => qq{SELECT * FROM cve_cwe WHERE cveid=?},
+      get_capec => qq{SELECT * FROM cwe_capec WHERE cweid=?},
+      get_category => qq{SELECT * FROM cwe_category WHERE cweid=?},
+      get_iavm => qq{SELECT * FROM map_cve_iavm WHERE cveid=?},
 
       # References
-      get_refs => qq{SELECT * FROM cve_reference WHERE cveid LIKE ?},
-      get_scip => qq{SELECT * FROM map_cve_scip WHERE cveid LIKE ?},
-      get_osvdb => qq{SELECT * FROM map_cve_osvdb WHERE cveid LIKE ?},
-      get_certvn => qq{SELECT * FROM map_cve_certvn WHERE cveid LIKE ?},
-      get_bid => qq{SELECT * FROM map_cve_bid WHERE cveid LIKE ?},
+      get_refs => qq{SELECT * FROM cve_reference WHERE cveid=?},
+      get_scip => qq{SELECT * FROM map_cve_scip WHERE cveid=?},
+      get_osvdb => qq{SELECT * FROM map_cve_osvdb WHERE cveid=?},
+      get_certvn => qq{SELECT * FROM map_cve_certvn WHERE cveid=?},
+      get_bid => qq{SELECT * FROM map_cve_bid WHERE cveid=?},
 
       # Perl version only
-      get_cve_from_cpe => qq{SELECT * FROM cve_cpe WHERE cpeid LIKE ?},
+      get_cve_from_cpe => qq{SELECT * FROM cve_cpe WHERE cpeid=?},
    );
 
    my %prepared = ();
@@ -185,10 +185,29 @@ sub _get_info {
 
    my $dbh = $self->_dbh;
    my $s = $self->_prepared->{$info};
-   my $rv = $s->execute("\%$cve\%");
+   my $rv = $s->execute($cve);
    my $h = $s->fetchall_hashref('cveid');
 
    return $h;
+}
+
+sub _get_info_multi {
+   my $self = shift;
+   my ($info, $id, $cve) = @_;
+
+   my $log = $self->log;
+
+   my $h = $self->_get_info($info, $cve) or return;
+   my $dbh = $self->_dbh;
+   my $s = $self->_prepared->{$info};
+   my $r = {};
+   for my $cve (keys %$h) {
+      my $rv = $s->execute($cve);
+      my $a = $s->fetchall_hashref($id);
+      $r->{$cve} = [ keys %$a ];
+   }
+
+   return $r;
 }
 
 sub get_cve {
@@ -198,17 +217,17 @@ sub get_cve {
 
 sub get_cpe {
    my $self = shift;
-   return $self->_get_info('get_cpe', @_);
+   return $self->_get_info_multi('get_cpe', 'cpeid', @_);
 }
 
 sub get_cwe {
    my $self = shift;
-   return $self->_get_info('get_cwe', @_);
+   return $self->_get_info_multi('get_cwe',  'cweid', @_);
 }
 
 sub get_capec {
    my $self = shift;
-   return $self->_get_info('get_capec', @_);
+   return $self->_get_info_multi('get_capec', 'capecid', @_);
 }
 
 sub get_category {
@@ -223,21 +242,7 @@ sub get_iavm {
 
 sub get_cve_from_cpe {
    my $self = shift;
-   my ($cpe) = @_;
-
-   my $log = $self->log;
-
-   if (!defined($cpe)) {
-      $log->error("You MUST provide CPE argument");
-      return;
-   }
-
-   my $dbh = $self->_dbh;
-   my $s = $self->_prepared->{get_cve_from_cpe};
-   my $rv = $s->execute("\%$cpe\%");
-   my $h = $s->fetchall_hashref('cveid');
-
-   return $h;
+   return $self->_get_info('get_cve_from_cpe', @_);
 }
 
 sub post {
@@ -245,6 +250,7 @@ sub post {
 
    if ($self->_dbh) {
       $self->_dbh->disconnect;
+      $self->_dbh(undef);
    }
 
    return 1;

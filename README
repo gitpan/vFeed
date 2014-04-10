@@ -19,6 +19,7 @@ This module requires these other modules and libraries:
   LWP::UserAgent
   Digest::SHA1
   Archive::Tar
+  DBI
 
 COPYRIGHT AND LICENSE
 
